@@ -123,13 +123,17 @@ If you want to delete Traefik resources, click on `Reset Kubernetes` on the **Ku
 
 #### **Q: Does file sharing work similarly to Docker Desktop? Do I have to do any additional configuration to mount volumes to VMs?**
 
-**A:** Currently, the following directories are shared by default: `/Users/$USER` on macOS, `/home/$USER` on Linux, and `/tmp/rancher-desktop` on both. For Windows, all files are automatically shared via WSL2.
-
-Standard Docker volumes that are not generally accessible from the host computer work out of the box.
-
-To access other directories on Linux/macOS, you will have to perform additional configuration.
-
-If you want to change the behavior of the mounts, that will also require [additional configuration](https://github.com/rancher-sandbox/rancher-desktop/issues/1209#issuecomment-1370181132).
+* directories / shared by default
+  * | macOS
+    * `/Users/$USER`
+    * `/tmp/rancher-desktop`
+  * | Linux
+    * `/home/$USER`
+    * `/tmp/rancher-desktop`
+  * | Windows
+    * ALL files -- are automatically shared via -- WSL2
+* Standard Docker volumes / NOT generally accessible -- from the -- host computer -> work out of the box
+* if you want to access other directories | Linux/macOS -> [additional configuration](https://github.com/rancher-sandbox/rancher-desktop/issues/1209#issuecomment-1370181132)
 
 #### **Q: Can containers reach back to host services via `host.docker.internal`?**
 
