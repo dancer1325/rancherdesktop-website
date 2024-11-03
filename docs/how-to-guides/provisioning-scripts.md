@@ -8,64 +8,75 @@ title: Provisioning Scripts
 
 import TabsConstants from '@site/core/TabsConstants';
 
-Provisioning scripts can be used to override some of Rancher Desktop's internal processes. For example, scripts can be used to provide certain command line parameters to K3s, add additional mounts, increase ulimit value etc. This guide will explain how to set up your provisioning scripts for macOS, Linux, and Windows.
+* goal
+  * how to set up your provisioning scripts | macOS, Linux, and Windows
+* Provisioning scripts
+  * uses
+    * 👀override some of Rancher Desktop's internal processes 👀
+      * _Example1:_ provide certain CL parameters to K3s,
+      * _Example2:_ add additional mounts,
+      * _Example3:_ increase ulimit value
 
 ## macOS & Linux
 
-On macOS and Linux, you can use lima override.yaml to write provisioning scripts.
+* 👀use lima override.yaml 👀
+  * uses
+    * Write a provisioning script
+    * override lima configuration setting
+    * implement custom settings
+* steps
+  * Run Rancher Desktop > 1 time 
+    * Reason: 🧠 create the `_config/` 🧠
+  * Create `override.yaml` at
+    * | macOS
+    
+        ```
+        ~/Library/Application Support/rancher-desktop/lima/_config/override.yaml
+        ```
+    * | Linux  
 
-- Run Rancher Desktop at least once to allow it to create the `_config` directory.
+        ```
+        ~/.local/share/rancher-desktop/lima/_config/override.yaml
+        ```
+  * use cases
+    * Write a provisioning script | `override.yaml`
+      * _Example:_ increase ulimit for containers
 
-:::note
-Please note that the directory will be deleted during a factory-reset, so ensure a backup for your provisioning scripts in case you need them after a factory-reset.
-:::
+        ```
+        provision:
+        - mode: system
+          script: |
+            #!/bin/sh
+            cat <<'EOF' > /etc/security/limits.d/rancher-desktop.conf
+            * soft     nofile         82920
+            * hard     nofile         82920
+            EOF
+        ```
+    * override lima configuration setting
+      * _Example:_ create additional mounts
 
-- Create `override.yaml` file at below path
+        ```
+        mounts:
+          - location: /some/path 
+            writable: true
+        ```
+    * implement custom settings
+      * _Example:_ allow users -- to implement, via Rancher Desktop's `K3S_EXEC` syntax, -- custom settings for [`K3s`](https://k3s.io/?ref=traefik.io) environments
+        * (Similar to the `K3s` syntax [`INSTALL_K3S_EXEC`](https://docs.k3s.io/reference/env-variables#:~:text=as%20the%20default.-,INSTALL_K3S_EXEC,-Command%20with%20flags))
+        * see
+          * [agent](https://docs.k3s.io/cli/agent)
+          * [server](https://docs.k3s.io/cli/server)
+          * [`--tls-san value`](https://docs.k3s.io/cli/server#:~:text=of%20the%20cluster-,%2D%2Dtls%2Dsan%20value,-N/A)
+            * add additional hostnames -- as -- Subject Alternative Names | TLS certification
 
-<Tabs groupId="os">
-  <TabItem value="macOS">
+          ```
+          env:
+            K3S_EXEC: --tls-san value
+          ```
 
-```
-~/Library/Application Support/rancher-desktop/lima/_config/override.yaml
-```
-
-  </TabItem>
-  <TabItem value="Linux">
-
-```
-~/.local/share/rancher-desktop/lima/_config/override.yaml
-```
-
-  </TabItem>
-</Tabs>
-
-- Write a provisioning script in the `override.yaml` file created in the previous step. For example, you can use the below script to increase ulimit for containers.
-
-```
-provision:
-- mode: system
-  script: |
-    #!/bin/sh
-    cat <<'EOF' > /etc/security/limits.d/rancher-desktop.conf
-    * soft     nofile         82920
-    * hard     nofile         82920
-    EOF
-```
-
-- You can also use `override.yaml` to override/modify a lima configuration setting, for example, to create additional mounts as shown below.
-
-```
-mounts:
-  - location: /some/path 
-    writable: true
-```
-
-- Another example uses the `override.yaml` file to allow users to implement custom settings for [`K3s`](https://k3s.io/?ref=traefik.io) environments using Rancher Desktop's `K3S_EXEC` syntax (Similar to the `K3s` syntax [`INSTALL_K3S_EXEC`](https://docs.k3s.io/reference/env-variables#:~:text=as%20the%20default.-,INSTALL_K3S_EXEC,-Command%20with%20flags)). Please see the [agent](https://docs.k3s.io/cli/agent) and [server](https://docs.k3s.io/cli/server) command line flags documentation for further installation options. Below is an example setting using the [`--tls-san value`](https://docs.k3s.io/cli/server#:~:text=of%20the%20cluster-,%2D%2Dtls%2Dsan%20value,-N/A) flag to add additional hostnames as Subject Alternative Names on the TLS certification:
-
-```
-env:
-  K3S_EXEC: --tls-san value
-```
+* 👀if you make a factory-reset -> `*_config/` will be deleted 👀
+  * -> recommendations
+    * ensure a backup -- for -- your provisioning scripts
 
 ## Windows
 
